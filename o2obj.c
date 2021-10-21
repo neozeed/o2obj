@@ -3,23 +3,40 @@
 
 /* Modified by Colin Jensen */
 
-#define INCL_DOSFILEMGR
-#include <os2.h>
+//#define INCL_DOSFILEMGR
+//#include <os2.h>
+/* NOINC */
+#define CHAR    char            /* ch  */
+#define SHORT   short           /* s   */
+#define LONG    long            /* l   */
+typedef unsigned char  UCHAR;   /* uch */
+typedef unsigned short USHORT;  /* us  */
+typedef unsigned long  ULONG;   /* ul  */
+typedef unsigned char *PSZ;
 
-#ifdef __GNUC__
-ULONG _System DosOpen();
-ULONG _System DosQueryFileInfo();
-ULONG _System DosRead();
-ULONG _System DosClose();
-ULONG _System DosWrite();
-#endif
+
+//#ifdef __GNUC__
+//ULONG _System DosOpen();
+//ULONG _System DosQueryFileInfo();
+//ULONG _System DosRead();
+//ULONG _System DosClose();
+//ULONG _System DosWrite();
+//#endif
+void DosClose(int hFileO);
+ULONG DosWrite(int hFileO,char *chRecordType,ULONG size,ULONG ulBytesWritten );
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <a.out.h>
-#include <stab.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include "a_out.h"
+#include "ostab.h"
 
+//#define DEBUG 1
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
 /**** Gnu Object Structures **************************************/
 
 #define UNDEFINED   0
@@ -98,7 +115,8 @@ struct SymInfo
    USHORT               usRecordLength;
    ULONG               usFileWriteReturn;
    ULONG                ulBytesWritten;
-   HFILE                hFileO;
+//   HFILE                hFileO;
+   int	hFileO;	//file handle?!
    ULONG                ulCheckSum;
    USHORT               usMainPresent;
    USHORT               usAcrtusedPresent;
@@ -207,7 +225,8 @@ main (ULONG     argc,
    /*--- Program Data Structures -----------------------------------------*/
 
    struct OReloInfo *   ReloInfo;
-   FILESTATUS           OFileStatus;
+//   FILESTATUS           OFileStatus;
+  struct stat OFileStatus;
 
    /*---------------------------------------------------------------------*/
 
@@ -250,7 +269,7 @@ main (ULONG     argc,
       strcpy (szOutputFileName, szInputFileName);
       strcat (szOutputFileName, "bj");
    }
-
+#if 0
    FileOpenReturn = DosOpen (szInputFileName,
                              &hFileO,
                              &ulActionTaken,
@@ -281,6 +300,25 @@ main (ULONG     argc,
                              OFileStatus.cbFile,
                              &BytesRead);
 
+#else
+#ifdef DEBUG
+printf("reading szInputFileName: %s\n",szInputFileName);
+#endif
+hFileO=open(szInputFileName,O_BINARY|O_RDONLY);
+if (hFileO == -1) {
+	printf ("Open error: %d\n", FileOpenReturn);
+        return 1;
+        }
+if (fstat(hFileO, &OFileStatus) == -1) {
+	printf ("File Query error: %d\n", FileReadReturn);
+        exit(1);
+        }
+#ifdef DEBUG
+printf("OFileStatus.st_size: %d\n",OFileStatus.st_size);
+#endif
+pchOFileBuf = (CHAR *) malloc(OFileStatus.st_size);
+BytesRead=read(hFileO,pchOFileBuf,OFileStatus.st_size);
+#endif
 #ifdef DEBUG
 
    printf ("\nO File bytes read %d\n\n", BytesRead);
@@ -682,7 +720,9 @@ main (ULONG     argc,
            {
             case EXTERIOR:
 /*            case BSS:*/
+#if 0
                 *((LONG*) (pchDataArea + ReloInfo[x].Address)) = 0L;
+#endif
                 break;
 
             case TEXT | EXTERIOR:
@@ -734,7 +774,7 @@ main (ULONG     argc,
 
     }
   /*------------------------------------------------------------------------*/
-
+#if 0
    FileOpenReturn = DosOpen (szOutputFileName,
                              &hFileO,
                              &ulActionTaken,
@@ -748,7 +788,17 @@ main (ULONG     argc,
    if (FileOpenReturn) {printf ("Open Obj error: %d\n", FileOpenReturn);
                         return 1;
                        }
-
+#else
+#ifdef DEBUG
+printf("writing file szOutputFileName: %s\n",szOutputFileName);
+#endif
+   //FileOpenReturn = open (szOutputFileName,O_BINARY|O_RDWR|O_CREAT|O_TRUNC,S_IRUSR|S_IWUSR );
+   FileOpenReturn = open (szOutputFileName,O_BINARY|O_RDWR|O_CREAT|O_TRUNC,0666 );
+   if (FileOpenReturn== -1) {
+	printf ("Open Obj error: %d\n", FileOpenReturn);
+        return 1;
+        }
+#endif
    /*-----------------------------------------------------------------------*/
 
    WriteTranslatorHeaderRecord (szOutputFileName);
@@ -2717,4 +2767,20 @@ void WriteModuleLineNumbers()
     }
 
     if (bp > buf) WriteModuleLineNumbersBlock(buf, bp-buf);
+}
+
+void DosClose(int hFileO){
+close (hFileO);
+}
+ULONG DosWrite(int hFileO,char *chRecordType,ULONG size,ULONG ulBytesWritten ) {
+int rc;
+rc=write(hFileO,chRecordType,size);
+ulBytesWritten=rc;
+if(rc>0)
+	return 0;
+else
+	return -1;
+
+//we should never get here but.. you know return types
+return -1;
 }
