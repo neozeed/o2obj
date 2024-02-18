@@ -77,8 +77,8 @@
 
 /* Relocation format. */
 struct relocation_info {
-	int r_address;			/* offset in text or data segment */
-	unsigned int r_symbolnum : 24,	/* ordinal number of add symbol */
+	LONG r_address;			/* offset in text or data segment */
+	ULONG r_symbolnum : 24,	/* ordinal number of add symbol */
 			 r_pcrel :  1,	/* 1 if value should be pc-relative */
 			r_length :  2,	/* log base 2 of value's width */
 			r_extern :  1,	/* 1 if need to add symbol to value */
@@ -86,6 +86,6 @@ struct relocation_info {
 };
 
 #define _AOUT_INCLUDE_
-#include <nlist.h>
+#include "nlist.h"
 
 #endif /* !_AOUT_H_ */

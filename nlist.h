@@ -43,11 +43,11 @@
 struct nlist {
 #ifdef _AOUT_INCLUDE_
 	union {
-		char *n_name;	/* symbol name (in memory) */
-		long n_strx;	/* file string table offset (on disk) */
+		CHAR *n_name;	/* symbol name (in memory) */
+		LONG n_strx;	/* file string table offset (on disk) */
 	} n_un;
 #else
-	char *n_name;		/* symbol name (in memory) */
+	CHAR *n_name;		/* symbol name (in memory) */
 #endif
 
 #define	N_UNDF	0x00		/* undefined */
@@ -60,12 +60,12 @@ struct nlist {
 
 #define	N_EXT	0x01		/* external (global) bit, OR'ed in */
 #define	N_TYPE	0x1e		/* mask for all the type bits */
-	unsigned char n_type;	/* type defines */
+	UCHAR n_type;	/* type defines */
 
-	char n_other;		/* spare */
+	CHAR n_other;		/* spare */
 #define	n_hash	n_desc		/* used internally by ld(1); XXX */
-	short n_desc;		/* used by stab entries */
-	unsigned long n_value;	/* address/value of the symbol */
+	SHORT n_desc;		/* used by stab entries */
+	ULONG n_value;	/* address/value of the symbol */
 };
 
 #define	N_FORMAT	"%08x"	/* namelist value format; XXX */

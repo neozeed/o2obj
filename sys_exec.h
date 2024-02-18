@@ -39,18 +39,18 @@
 /* Header prepended to each a.out file. */
 struct exec {
 #if !defined(vax) && !defined(tahoe) && !defined(i386)
-unsigned short	a_mid;		/* machine ID */
-unsigned short	a_magic;	/* magic number */
+USHORT	a_mid;		/* machine ID */
+USHORT	a_magic;	/* magic number */
 #else
-	 long	a_magic;	/* magic number */
+	 LONG	a_magic;	/* magic number */
 #endif
-unsigned long	a_text;		/* text segment size */
-unsigned long	a_data;		/* initialized data size */
-unsigned long	a_bss;		/* uninitialized data size */
-unsigned long	a_syms;		/* symbol table size */
-unsigned long	a_entry;	/* entry point */
-unsigned long	a_trsize;	/* text relocation size */
-unsigned long	a_drsize;	/* data relocation size */
+ULONG	a_text;		/* text segment size */
+ULONG	a_data;		/* initialized data size */
+ULONG	a_bss;		/* uninitialized data size */
+ULONG	a_syms;		/* symbol table size */
+ULONG	a_entry;	/* entry point */
+ULONG	a_trsize;	/* text relocation size */
+ULONG	a_drsize;	/* data relocation size */
 };
 #define	a_machtype	a_mid	/* SUN compatibility */
 

@@ -6,13 +6,14 @@
 //#define INCL_DOSFILEMGR
 //#include <os2.h>
 /* NOINC */
-#define CHAR    char            /* ch  */
-#define SHORT   short           /* s   */
-#define LONG    long            /* l   */
-typedef unsigned char  UCHAR;   /* uch */
-typedef unsigned short USHORT;  /* us  */
-typedef unsigned long  ULONG;   /* ul  */
-typedef unsigned char *PSZ;
+#include <stdint.h>
+#define CHAR    int8_t            /* ch  */
+#define SHORT   int16_t           /* s   */
+#define LONG    int32_t            /* l   */
+typedef uint8_t  UCHAR;   /* uch */
+typedef uint16_t USHORT;  /* us  */
+typedef uint32_t ULONG;   /* ul  */
+typedef uint8_t *PSZ;
 
 
 //#ifdef __GNUC__
